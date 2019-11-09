@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "compile": "git clean -df && tsc",
-    "forever": "forever start ./src/bot-roles/index.js",
+    "forever": "forever start ./src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Exan",
