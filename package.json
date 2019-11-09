@@ -1,0 +1,26 @@
+{
+  "name": "cc-forum-bot",
+  "version": "1.0.0",
+  "description": "Monitors new posts on cubecrafts' forum",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "compile": "git clean -df && tsc",
+    "forever": "forever start ./src/bot-roles/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Exan",
+  "license": "ISC",
+  "dependencies": {
+    "del": "^5.1.0",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "html2json": "^1.0.2",
+    "node-fetch": "^2.6.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.7"
+  }
+}
