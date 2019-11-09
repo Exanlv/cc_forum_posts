@@ -42,10 +42,6 @@ export class CubecraftForum extends EventEmitter {
             }
 
         }, refreshTimer);
-
-        setTimeout(() => {
-            this.emit('forumPost', this.recentPosts[0])
-        }, 15000);
     }
 
     private async getPage(url: string): Promise<HtmlJson> {
