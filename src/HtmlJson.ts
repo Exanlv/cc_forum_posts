@@ -1,6 +1,7 @@
 import * as fetch from 'node-fetch';
 import { html2json } from 'html2json';
 import { HtmlJsonElement } from './blueprints/HtmlJsonElement';
+import { writeFileSync } from 'fs';
 
 export class HtmlJson {
     private url: string;
@@ -11,6 +12,7 @@ export class HtmlJson {
     }
 
     public async loadDom(): Promise<void> {
+        writeFileSync('./test.html', await (await fetch(this.url)).text());
         this.dom = [html2json(await (await fetch(this.url)).text())];
     }
 
