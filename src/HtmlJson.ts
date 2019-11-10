@@ -17,9 +17,11 @@ export class HtmlJson {
 
         await page.goto(this.url);
         
-        await page.screenshot({path: '1.png'});
+        await page.waitFor(7500);
 
-        // this.dom = [html2json(await (await fetch(this.url)).text())];
+        console.log(await page.evaluate(() => {
+            return document.documentElement.outerHTML;
+        }));
     }
 
     public findElement(
