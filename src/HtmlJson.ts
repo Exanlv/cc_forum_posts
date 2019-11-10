@@ -1,7 +1,6 @@
 import * as fetch from 'node-fetch';
 import { html2json } from 'html2json';
 import { HtmlJsonElement } from './blueprints/HtmlJsonElement';
-import * as puppeteer from 'puppeteer';
 
 export class HtmlJson {
     private url: string;
@@ -12,16 +11,7 @@ export class HtmlJson {
     }
 
     public async loadDom(): Promise<void> {
-        const browser = await puppeteer.launch({ headless: true });
-        const page = await browser.newPage();
-
-        await page.goto(this.url);
-        
-        await page.waitFor(7500);
-
-        console.log(await page.evaluate(() => {
-            return document.documentElement.outerHTML;
-        }));
+        this.dom = [html2json(await (await fetch(this.url)).text())];
     }
 
     public findElement(
