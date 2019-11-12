@@ -126,9 +126,11 @@ export class Bot {
 
     private addServer(serverId: string, channelId: string): void {
         writeFileSync(`${__dirname}/../guilds/${serverId}`, channelId);
+        this.loadServerConfiguration();
     }
 
     private async removeServer(serverId: string): Promise<void> {
         await del(`${__dirname}/../guilds/${serverId}`);
+        this.loadServerConfiguration();
     }
 }
