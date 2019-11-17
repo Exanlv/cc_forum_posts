@@ -73,8 +73,8 @@ export class CubecraftForum extends EventEmitter {
 			return this.forumUsers[id];
 		}
 
-		const user = new ForumUser(id, this);
-		await user.loadData();
+		const user = new ForumUser(id);
+		await user.loadData(this);
 
 		this.forumUsers[id] = user;
 
