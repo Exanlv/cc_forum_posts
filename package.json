@@ -1,24 +1,31 @@
 {
-  "name": "cc-forum-bot",
+  "name": "base-bot",
   "version": "1.0.0",
-  "description": "Monitors new posts on cubecrafts' forum",
-  "main": "index.js",
+  "description": "Discord bot base made in Typescript",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/index.ts",
-    "compile": "git clean -df && tsc",
-    "forever": "forever start ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node src/index.ts"
   },
-  "author": "Exan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Exanlv/ts-discord-bot.git"
+  },
+  "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Exanlv/ts-discord-bot/issues"
+  },
+  "homepage": "https://github.com/Exanlv/ts-discord-bot#readme",
   "dependencies": {
-    "del": "^5.1.0",
+    "@types/node": "^12.12.5",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0",
-    "html2json": "^1.0.2",
-    "node-fetch": "^2.6.0",
+    "image-downloader": "^3.5.0",
+    "imgur-v2": "^0.2.1",
+    "puppeteer": "^2.0.0",
     "ts-node": "^8.4.1",
-    "typescript": "^3.7.2"
+    "typescript": "^3.6.4"
   },
   "devDependencies": {
     "@types/node": "^12.12.7"

@@ -1,5 +1,7 @@
-import { Bot } from "./Bot";
+import { Bot } from "./bot";
 
 require('dotenv').config();
 
-let bot = new Bot(process.env.TOKEN, Number(process.env.REFRESHTIMER));
+const bot = new Bot(process.env.TOKEN);
+
+bot.startUp();
