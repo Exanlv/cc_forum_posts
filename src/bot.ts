@@ -9,6 +9,7 @@ import { DirectMessage } from './Forum/blueprints/DirectMessage';
 import { ForumCommandConfig } from './Forum/commands/config';
 import { writeFileSync, readdirSync, readFileSync, unlinkSync } from 'fs';
 import { ForumCommand } from './Forum/blueprints/ForumCommand';
+import { RequiresLinkedUserCommand } from './commands/RequiresLinkedUserCommand';
 
 export class Bot {
     public client: Client;
@@ -114,12 +115,16 @@ export class Bot {
 
         let commandClass;
         if (commandConfig && commandConfig.command) {
-            commandClass = hasPermission(message.member, commandConfig.permission, this) ? commandConfig.command : MissingPermissionCommand;
+            commandClass = hasPermission(message.member || message.author, commandConfig.permission, this) ? commandConfig.command : MissingPermissionCommand;
         } else {
             commandClass = UnknownCommand;
         }
+
+        if (commandConfig.requiresLinkedAccount && commandConfig.requiresLinkedAccount === true && !this.verifiedUsers[message.author.id]) {
+            commandClass = RequiresLinkedUserCommand;
+        }
     
-        const commandInstance = new commandClass(message, this, getPermissionLevel(message.member, this));
+        const commandInstance = new commandClass(message, this, getPermissionLevel(message.member || message.author, this));
     
         commandInstance.run().catch(async (e) => {
             /**

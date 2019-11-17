@@ -3,6 +3,7 @@ import { HelpCommand } from "./public/HelpCommand";
 import { PermissionLevel } from "../enums/PermissionLevel";
 import { LinkCommand } from "./public/LinkCommand";
 import { UnlinkCommand } from "./public/UnlinkCommand";
+import { MyAccountCommand } from "./linked-user/MyAccountCommand";
 
 export const commandConfig: Array<CommandConfig> = [
     {
@@ -19,5 +20,11 @@ export const commandConfig: Array<CommandConfig> = [
         key: 'unlink',
         command: UnlinkCommand,
         permission: PermissionLevel.public
+    },
+    {
+        key: 'my-account',
+        command: MyAccountCommand,
+        permission: PermissionLevel.public,
+        requiresLinkedAccount: true
     }
 ]

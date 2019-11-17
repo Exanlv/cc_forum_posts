@@ -1,6 +1,5 @@
 import { Command } from "../blueprints/Command";
 import { IRunnableCommand } from "../interfaces/IRunnableCommand";
-import { Bot } from "../bot";
 
 export class MissingPermissionCommand extends Command implements IRunnableCommand {
     public async run(): Promise<void> {

@@ -1,34 +1,27 @@
-import { GuildMember } from "discord.js";
+import { GuildMember, User } from "discord.js";
 import { PermissionLevel } from "./enums/PermissionLevel";
 import { Bot } from "./bot";
 
-export function hasPermission(member: GuildMember, permission: PermissionLevel, bot: Bot): boolean {
+export function hasPermission(member: User|GuildMember, permission: PermissionLevel, bot: Bot): boolean {
     switch (permission) {
         case PermissionLevel.public:
             return true;
 
-        case PermissionLevel.linkedUser:
-            return !!bot.verifiedUsers[member.id];
-
         case PermissionLevel.admin:
-            return member.hasPermission('ADMINISTRATOR');
+            return member instanceof GuildMember && member.hasPermission('ADMINISTRATOR');
         
         case PermissionLevel.dev:
             return process.env.DEVELOPER_IDS.includes(member.id);
     }
 }
 
-export function getPermissionLevel(member: GuildMember, bot: Bot): PermissionLevel {
+export function getPermissionLevel(member: User|GuildMember, bot: Bot): PermissionLevel {
     if (hasPermission(member, PermissionLevel.dev, bot)) {
         return PermissionLevel.dev;
     }
 
     if (hasPermission(member, PermissionLevel.admin, bot)) {
         return PermissionLevel.dev;
-    }
-
-    if (hasPermission(member, PermissionLevel.linkedUser, bot)) {
-        return PermissionLevel.linkedUser;
     }
 
     if (hasPermission(member, PermissionLevel.public, bot)) {
