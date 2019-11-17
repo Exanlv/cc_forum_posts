@@ -114,12 +114,12 @@ export class Bot {
 
         let commandClass;
         if (commandConfig && commandConfig.command) {
-            commandClass = hasPermission(message.member, commandConfig.permission) ? commandConfig.command : MissingPermissionCommand;
+            commandClass = hasPermission(message.member, commandConfig.permission, this) ? commandConfig.command : MissingPermissionCommand;
         } else {
             commandClass = UnknownCommand;
         }
     
-        const commandInstance = new commandClass(message, this, getPermissionLevel(message.member));
+        const commandInstance = new commandClass(message, this, getPermissionLevel(message.member, this));
     
         commandInstance.run().catch(async (e) => {
             /**
