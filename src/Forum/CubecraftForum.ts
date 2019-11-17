@@ -4,6 +4,8 @@ import { DirectMessage } from './blueprints/DirectMessage';
 import { ForumUser } from './blueprints/ForumUser';
 import { NewForumPost } from './blueprints/NewForumPost';
 
+import * as fetch from 'node-fetch';
+
 export class CubecraftForum extends EventEmitter {
 	public browser: any;
 	public baseUrl: string = 'https://www.cubecraft.net';
@@ -79,6 +81,70 @@ export class CubecraftForum extends EventEmitter {
 		this.forumUsers[id] = user;
 
 		return user;
+	}
+
+	public async searchMembers(username: string): Promise<string[]> {
+		const page = await this.browser.newPage();
+		await page.goto(`${this.baseUrl}/members/`);
+
+		await page.type('input[name=username]', username);
+
+		await page.waitFor('.autoCompleteList');
+
+		const result = await page.evaluate(() => {
+			return Array.from(document.getElementsByClassName('autoCompleteList')[0].children).map((liElement: HTMLElement) => {
+				return {username: liElement.textContent, id: liElement.innerHTML.match(/src="data\/avatars\/(.*)\/(.*)\/(.*).jpg/)};
+			});
+		});
+
+		page.close();
+
+		return result;
+	}
+
+	public async getUserIdByUsername(username: string): Promise<string> {
+		const page = await this.browser.newPage();
+		await page.goto(`${this.baseUrl}/members/`);
+
+		await page.type('input[name=username]', username);
+
+		await page.waitForSelector('.autoCompleteList');
+
+		/**
+		 * User ID isnt consistently available in the search result so
+		 * you have to visit the users profile to get it instead
+		 */
+		const hasResult = await page.evaluate(() => {
+			const username = (document.querySelector('input[name=username]') as HTMLInputElement).value;
+			const elements = Array.from(document.getElementsByClassName('autoCompleteList')[0].children) as HTMLElement[];
+
+			for (const i in elements) {
+				if (elements[i].textContent === username) {
+					elements[i].click();
+					return true;
+				}
+			}
+
+			return false;
+		});
+
+		/**
+		 * Its possible the username isnt found
+		 */
+		if (!hasResult) {
+			page.close();
+			return;
+		}
+
+		await page.waitForSelector('h1.username');
+
+		const userId = await page.evaluate(() => {
+			return window.location.href.match(/\/members\/(.*)\.(.*)\//)[2];
+		});
+
+		page.close();
+
+		return userId;
 	}
 
 	private async handleDms(): Promise<void> {

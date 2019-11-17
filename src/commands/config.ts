@@ -1,6 +1,7 @@
 import { CommandConfig } from '../blueprints/CommandConfig';
 import { PermissionLevel } from '../enums/PermissionLevel';
 import { MyAccountCommand } from './linked-user/MyAccountCommand';
+import { SearchUserCommand } from './linked-user/SearchUserCommand';
 import { HelpCommand } from './public/HelpCommand';
 import { LinkCommand } from './public/LinkCommand';
 import { UnlinkCommand } from './public/UnlinkCommand';
@@ -26,5 +27,10 @@ export const commandConfig: CommandConfig[] = [
 		command: MyAccountCommand,
 		permission: PermissionLevel.public,
 		requiresLinkedAccount: true,
+	},
+	{
+		key: 'search',
+		command: SearchUserCommand,
+		permission: PermissionLevel.public,
 	},
 ];

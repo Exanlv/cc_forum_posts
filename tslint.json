@@ -16,7 +16,9 @@
 		"forin": false,
 		"no-var-requires": false,
         "typedef": [true, "call-signature", "arrow-call-signature", "parameter", "arrow-parameter", "property-declaration", "member-variable-declaration"],
-        "jsdoc-format": false
+		"jsdoc-format": false,
+		"no-string-literal": false,
+		"variable-name": false
 	},
     "rulesDirectory": []
 }

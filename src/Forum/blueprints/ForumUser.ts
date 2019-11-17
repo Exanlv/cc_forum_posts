@@ -59,7 +59,7 @@ export class ForumUser {
 				})(),
 				status: ((): string => {
 					const statusElement = document.getElementById('UserStatus');
-					
+
 					if (!statusElement) {
 						return null;
 					}
@@ -72,17 +72,17 @@ export class ForumUser {
 					/**
 					 * The mc account display uses the same class as user info
 					 */
-					let mcAccount = document.getElementsByClassName('mcPlayerProfile')[0];
+					const mcAccount = document.getElementsByClassName('mcPlayerProfile')[0];
 
 					if (mcAccount) {
 						mcAccount.parentElement.remove();
 					}
 
-					let elements = Array.from(document.getElementsByClassName('mast')[0].getElementsByClassName('pairsJustified'));
-					let res = {};
+					const elements = Array.from(document.getElementsByClassName('mast')[0].getElementsByClassName('pairsJustified'));
+					const res = {};
 
-					elements.forEach((childElement) => {
-						Array.from(childElement.children).forEach((dlElement) => {
+					elements.forEach((childElement: HTMLElement) => {
+						Array.from(childElement.children).forEach((dlElement: HTMLElement) => {
 							/**
 							 * Calculate message/likes ratio, calculated here for the display order
 							 */
@@ -91,12 +91,12 @@ export class ForumUser {
 							}
 
 							res[dlElement.children[0].textContent.replace(/ /g, '_').replace(/:/g, '').toLowerCase()] = dlElement.children[1].textContent;
-						})
+						});
 					});
 
 					return res;
 				})(),
-				url: window.location.href
+				url: window.location.href,
 			};
 		});
 
@@ -120,11 +120,10 @@ export class ForumUser {
 		this.roles = roles;
 		this.status = status;
 		this.additionalUserInfo = additionalUserInfo;
-		
+
 		this.url = url;
 
 		this.mcUuid = mcUuid;
-
 
 		unlink(tempFilePath, () => { return; });
 	}

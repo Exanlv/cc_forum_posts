@@ -43,10 +43,9 @@ export function generateRandomString(length: number): string {
 export function friendlyPropertyName(propertyName: string): string {
 	const propertyNameSplit = propertyName.split('_');
 
-	for (let i in propertyNameSplit) {
+	for (const i in propertyNameSplit) {
 		propertyNameSplit[i] = `${propertyNameSplit[i].substr(0, 1).toUpperCase()}${propertyNameSplit[i].substr(1).toLowerCase()}`;
 	}
 
 	return propertyNameSplit.join(' ');
 }
-
