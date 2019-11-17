@@ -133,7 +133,7 @@ export class Bot {
              */
 			try {
 				await message.channel.send(`\`\`\`${e}\`\`\``);
-			} catch (e: any) {
+			} catch (e) {
 				/**
                  * Reporting the error didnt work, bot appears to be missing
                  * permission to send messages, notify guild owner (todo)
