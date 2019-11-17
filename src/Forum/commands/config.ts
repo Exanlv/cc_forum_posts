@@ -1,9 +1,9 @@
-import { ForumCommand } from "../blueprints/ForumCommand";
-import { VerifyCommand } from "./VerifyCommand";
+import { ForumCommand } from '../blueprints/ForumCommand';
+import { VerifyCommand } from './VerifyCommand';
 
-export const ForumCommandConfig: Array<ForumCommand> = [
-    {
-        key: 'verify',
-        commandClass: VerifyCommand
-    }
-]
+export const ForumCommandConfig: ForumCommand[] = [
+	{
+		key: 'verify',
+		commandClass: VerifyCommand,
+	},
+];

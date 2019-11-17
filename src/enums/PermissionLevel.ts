@@ -1,5 +1,5 @@
 export enum PermissionLevel {
-    public,
-    admin,
-    dev
+	public,
+	admin,
+	dev,
 }

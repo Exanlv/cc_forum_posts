@@ -1,11 +1,11 @@
-import { ForumUser } from "./ForumUser";
+import { ForumUser } from './ForumUser';
 
 export class NewForumPost {
-    public title: string;
-    public threadCreator: ForumUser;
-    public lastCommentCreator: ForumUser;
-    public threadLink: string;
-    public lastCommentTime: number;
+	public title: string;
+	public threadCreator: ForumUser;
+	public lastCommentCreator: ForumUser;
+	public threadLink: string;
+	public lastCommentTime: number;
 
-    public content?: string;
+	public content?: string;
 }

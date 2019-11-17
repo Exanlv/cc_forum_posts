@@ -1,10 +1,8 @@
-import { AShowUserCommand } from "./AShowUserCommand";
-import { IRunnableCommand } from "../../interfaces/IRunnableCommand";
+import { IRunnableCommand } from '../../interfaces/IRunnableCommand';
+import { AShowUserCommand } from './AShowUserCommand';
 
 export class MyAccountCommand extends AShowUserCommand implements IRunnableCommand {
-    public requiresLinked = true;
-
-    public async run(): Promise<void> {
-        this.message.channel.send('haha yes');
-    }
+	public async run(): Promise<void> {
+		this.message.channel.send('haha yes');
+	}
 }
