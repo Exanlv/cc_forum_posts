@@ -93,7 +93,7 @@ export class CubecraftForum extends EventEmitter {
 
 		const result = await page.evaluate(() => {
 			return Array.from(document.getElementsByClassName('autoCompleteList')[0].children).map((liElement: HTMLElement) => {
-				return {username: liElement.textContent, id: liElement.innerHTML.match(/src="data\/avatars\/(.*)\/(.*)\/(.*).jpg/)};
+				return liElement.textContent;
 			});
 		});
 
