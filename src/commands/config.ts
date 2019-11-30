@@ -5,6 +5,8 @@ import { SearchUserCommand } from './linked-user/SearchUserCommand';
 import { HelpCommand } from './public/HelpCommand';
 import { LinkCommand } from './public/LinkCommand';
 import { UnlinkCommand } from './public/UnlinkCommand';
+import { EnableLinkRanksCommand } from './admin/link-ranks/EnableLinkRanksCommand';
+import { SyncRolesCommand } from './dev/SyncRolesCommand';
 
 export const commandConfig: CommandConfig[] = [
 	{
@@ -23,7 +25,7 @@ export const commandConfig: CommandConfig[] = [
 		permission: PermissionLevel.public,
 	},
 	{
-		key: 'my-account',
+		key: 'me',
 		command: MyAccountCommand,
 		permission: PermissionLevel.public,
 		requiresLinkedAccount: true,
@@ -33,4 +35,22 @@ export const commandConfig: CommandConfig[] = [
 		command: SearchUserCommand,
 		permission: PermissionLevel.public,
 	},
+	{
+		key: 'link-ranks',
+		permission: PermissionLevel.admin,
+		requiresServer: true,
+		subCommands: [
+			{
+				key: 'true',
+				requiresServer: true,
+				permission: PermissionLevel.public,
+				command: EnableLinkRanksCommand
+			}
+		]
+	},
+	{
+		key: 'sync-roles',
+		permission: PermissionLevel.dev,
+		command: SyncRolesCommand
+	}
 ];

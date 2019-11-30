@@ -19,9 +19,10 @@
   },
   "homepage": "https://github.com/Exanlv/ts-discord-bot#readme",
   "dependencies": {
+    "@exan/envreader": "^1.0.4",
+    "@exan/timing-service": "^1.0.1",
     "@types/node": "^12.12.7",
     "discord.js": "^11.5.1",
-    "dotenv": "^8.2.0",
     "image-downloader": "^3.5.0",
     "imgur-v2": "^0.2.1",
     "node-fetch": "^2.6.0",

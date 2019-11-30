@@ -1,6 +1,6 @@
 import { Bot } from './bot';
 
-require('dotenv').config();
+require('@exan/envreader').load();
 
 const bot = new Bot(process.env.TOKEN);
 

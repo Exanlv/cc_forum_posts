@@ -1,4 +1,4 @@
-import { Client, Message } from 'discord.js';
+import { Client, Message, Guild } from 'discord.js';
 import { readdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { CommandConfig } from './blueprints/CommandConfig';
 import { commandConfig } from './commands/config';
@@ -10,22 +10,34 @@ import { ForumCommand } from './Forum/blueprints/ForumCommand';
 import { ForumCommandConfig } from './Forum/commands/config';
 import { CubecraftForum } from './Forum/CubecraftForum';
 import { getPermissionLevel, hasPermission } from './helper';
+import { ServerConfig } from './ServerConfig';
+import { RequiresServerCommand } from './commands/RequiresServerCommand';
+import { TimingService } from '@exan/timing-service';
 
-export class Bot {
+export class Bot extends TimingService{
 	public static prefix: string = '--';
 	public client: Client;
 
 	public cubecraftForum: CubecraftForum;
 
 	public verifiedUsers: {[discordId: string]: string} = {};
-
 	public verifyingUsers: {[discordId: string]: string} = {};
+
+	public serverConfigs: {[serverId: string]: ServerConfig} = {};
+
 	private token: string;
 
 	private commands: CommandConfig[];
 	private forumCommands: ForumCommand[];
 
 	public constructor(token: string) {
+		super();
+
+		this.addEvent('m', 30, 'syncRoles');
+		this.on('syncRoles', () => {
+			this.linkMinecraftRoles();
+		});
+
 		this.client = new Client();
 		this.cubecraftForum = new CubecraftForum(Number(process.env.REFRESHTIMER), process.env.USERNAME, process.env.PASSWORD);
 
@@ -34,6 +46,7 @@ export class Bot {
 		this.commands = commandConfig;
 		this.forumCommands = ForumCommandConfig;
 
+		this.handleGuildCreate();
 		this.registerMessageHandler();
 		this.registerForumMessageHandler();
 		this.loadVerifiedUsers();
@@ -47,6 +60,8 @@ export class Bot {
 		});
 
 		this.client.on('ready', () => {
+			this.client.guilds.array().forEach(guild => this.handleNewGuild(guild));
+
 			console.log('Discord Bot started!');
 		});
 
@@ -120,11 +135,21 @@ export class Bot {
 			commandClass = UnknownCommand;
 		}
 
-		if (commandConfig.requiresLinkedAccount && commandConfig.requiresLinkedAccount === true && !this.verifiedUsers[message.author.id]) {
+		if (commandConfig.requiresServer && !message.guild) {
+			commandClass = RequiresServerCommand;
+		} else if (commandConfig && commandConfig.requiresLinkedAccount && commandConfig.requiresLinkedAccount === true && !this.verifiedUsers[message.author.id]) {
 			commandClass = RequiresLinkedUserCommand;
 		}
 
-		const commandInstance = new commandClass(message, this, getPermissionLevel(message.member || message.author, this));
+		
+
+		const commandInstance = new commandClass(
+			message,
+			this,
+			getPermissionLevel(message.member || message.author, this),
+			command,
+			message.guild ? this.serverConfigs[message.guild.id] : null
+		);
 
 		commandInstance.run().catch(async (e: any) => {
 			/**
@@ -142,6 +167,18 @@ export class Bot {
 		});
 	}
 
+	private handleGuildCreate(): void {
+		this.client.on('guildCreate', (guild: Guild) => {
+			this.handleNewGuild(guild);
+		});
+	}
+
+	private handleNewGuild(guild: Guild) {
+		if (!this.serverConfigs[guild.id]) {
+			this.serverConfigs[guild.id] = new ServerConfig(`${__dirname}/../data/server-configs`, guild.id);
+		}
+	}
+
 	private getCommandConfig(userCommand: string[], availableCommands?: CommandConfig[]): CommandConfig {
 		availableCommands = availableCommands || this.commands;
 
@@ -152,5 +189,41 @@ export class Bot {
 		}
 
 		return usedCommand;
+	}
+
+	public linkMinecraftRoles(): void {
+		for (let i in this.serverConfigs) {
+			if (this.serverConfigs[i].rankLinkingEnabled) {
+				let guild = this.client.guilds.find(g => g.id === i);
+
+				if (!guild) {
+					continue;
+				}
+
+				const roles = {};
+
+				for (let j in this.serverConfigs[i].rankRoles) {
+					roles[j] = guild.roles.find(g => g.id === this.serverConfigs[i].rankRoles[j]);
+				}
+
+				guild.members.tap(async (member) => {
+					if (this.verifiedUsers[member.id]) {
+						const user = await this.cubecraftForum.getUserInfo(this.verifiedUsers[member.id]);
+	
+						for (let j in roles) {
+							if (user.mcRanks.includes(j)) {
+								if (!member.roles.find(r => r.id === roles[j].id)) {
+									member.addRole(roles[j]);
+								}
+							} else {
+								if (member.roles.find(r => r.id === roles[j].id)) {
+									member.removeRole(roles[j]);
+								}
+							}
+						}
+					}
+				});
+			}
+		}
 	}
 }

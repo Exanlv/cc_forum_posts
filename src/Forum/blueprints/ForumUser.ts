@@ -8,15 +8,19 @@ export class ForumUser {
 
 	public userId: string;
 	public username: string;
-	public avatar: string;
-	public roles: string[];
-	public status?: string;
-	public additionalUserInfo: AdditionalUserInfo;
+	public private: boolean;
 	public url: string;
 
-	private imgur: any;
+	public avatar?: string;
+	public roles?: string[];
+	public status?: string;
+	public additionalUserInfo?: AdditionalUserInfo;
 
-	private mcUuid: string;
+	private imgur?: any;
+
+	public mcRanks: string[];
+
+	private mcUuid?: string;
 
 	constructor(userId: string) {
 		this.userId = userId;
@@ -29,7 +33,24 @@ export class ForumUser {
 		const page = await cubecraftForum.browser.newPage();
 		await page.goto(`${cubecraftForum.baseUrl}/members/${this.userId}`);
 
-		const {username, roles, avatar, mcUuid, status, additionalUserInfo, url} = await page.evaluate(() => {
+		/**
+		 * Members are able to set their profile to private for whatever reason, in
+		 * that case no data is available
+		 */
+		this.private = await page.evaluate(() => {
+			return document.getElementsByClassName('errorOverlay').length > 0;
+		})
+		
+		if (this.private) {
+			this.url = await page.evaluate(() => {
+				return window.location.href;
+			});
+
+			page.close();
+			return;
+		}
+
+		const {username, roles, avatar, mcUuid, status, additionalUserInfo, url, mcRanks} = await page.evaluate(() => {
 			return {
 				username: document.getElementsByClassName('username')[0].innerHTML.trim().match(/^(.*)/)[0],
 				roles: ((): string[] => {
@@ -56,6 +77,9 @@ export class ForumUser {
 					}
 
 					return mcPlayerProfile.innerHTML.trim().match(/user=(.*)\" height/)[1];
+				})(),
+				mcRanks: (() => {
+					return Array.from(document.getElementsByClassName('group-badge')).map(el => el.textContent.toLowerCase());
 				})(),
 				status: ((): string => {
 					const statusElement = document.getElementById('UserStatus');
@@ -120,6 +144,7 @@ export class ForumUser {
 		this.roles = roles;
 		this.status = status;
 		this.additionalUserInfo = additionalUserInfo;
+		this.mcRanks = mcRanks;
 
 		this.url = url;
 

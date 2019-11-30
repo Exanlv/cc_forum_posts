@@ -1,12 +1,12 @@
-import { EventEmitter } from 'events';
 import { launch } from 'puppeteer';
 import { DirectMessage } from './blueprints/DirectMessage';
 import { ForumUser } from './blueprints/ForumUser';
 import { NewForumPost } from './blueprints/NewForumPost';
 
 import * as fetch from 'node-fetch';
+import { TimingService } from '@exan/timing-service';
 
-export class CubecraftForum extends EventEmitter {
+export class CubecraftForum extends TimingService {
 	public browser: any;
 	public baseUrl: string = 'https://www.cubecraft.net';
 
@@ -65,9 +65,10 @@ export class CubecraftForum extends EventEmitter {
 		/**
          * Interval for checking forum updates
          */
-		setInterval(() => {
+		this.addEvent('ms', Number(process.env.REFRESHTIMER), 'updateData');
+		this.on('updateData', () => {
 			this.handleDms();
-		}, this.refreshTimer);
+		});
 	}
 
 	public async getUserInfo(id: string, forceRenew: boolean = false): Promise<ForumUser> {
@@ -136,7 +137,7 @@ export class CubecraftForum extends EventEmitter {
 			return;
 		}
 
-		await page.waitForSelector('h1.username');
+		await page.waitForSelector('.pageContent');
 
 		const userId = await page.evaluate(() => {
 			return window.location.href.match(/\/members\/(.*)\.(.*)\//)[2];

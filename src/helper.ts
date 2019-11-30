@@ -43,9 +43,23 @@ export function generateRandomString(length: number): string {
 export function friendlyPropertyName(propertyName: string): string {
 	const propertyNameSplit = propertyName.split('_');
 
-	for (const i in propertyNameSplit) {
+	for (let i in propertyNameSplit) {
 		propertyNameSplit[i] = `${propertyNameSplit[i].substr(0, 1).toUpperCase()}${propertyNameSplit[i].substr(1).toLowerCase()}`;
 	}
 
 	return propertyNameSplit.join(' ');
+}
+
+export function capitalizeFirstLetter(input: string): string {
+	return `${input[0].toUpperCase()}${input.substr(1).toLowerCase()}`;
+}
+
+export function jaydenSmithify(input: string): string {
+	const inputSplit = input.split(' ');
+
+	for (let i in inputSplit) {
+		inputSplit[i] = capitalizeFirstLetter(inputSplit[i]);
+	}
+
+	return inputSplit.join(' ');
 }

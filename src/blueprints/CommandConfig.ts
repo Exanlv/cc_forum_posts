@@ -6,4 +6,5 @@ export class CommandConfig {
 	public permission?: PermissionLevel;
 	public subCommands?: CommandConfig[];
 	public requiresLinkedAccount?: boolean;
+	public requiresServer?: boolean;
 }

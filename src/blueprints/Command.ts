@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { Message, RichEmbed, Emoji, MessageReaction, User, Collection } from 'discord.js';
 import { Bot } from '../bot';
 import { PermissionLevel } from '../enums/PermissionLevel';
 
@@ -19,9 +19,74 @@ export abstract class Command {
      */
 	public userPermission: PermissionLevel;
 
-	public constructor(message: Message, bot: Bot, userPermission: PermissionLevel) {
+	/**
+	 * The command as used by the user, prefix removed
+	 */
+	public command: Array<string>;
+
+	public constructor(message: Message, bot: Bot, userPermission: PermissionLevel, command: Array<string>) {
 		this.message = message;
 		this.bot = bot;
 		this.userPermission = userPermission;
+		this.command = command;
+	}
+
+	/**
+	 * Ask user for input with reacts, if no reacts are given, only the message will be send
+	 * @param message The message that should be send
+	 * @param reacts The reacts that are allowed / have a value
+	 * @param values The return value for each reaction
+	 */
+	protected async reactInput(message: string|RichEmbed, reacts: Array<string|Emoji>, values: Array<any>, deleteMessage = true): Promise<any> {
+		const discordMessage = await this.sendMessage(message);
+
+		if (!(reacts.length && reacts.length === values.length)) {
+			return;
+		}
+
+		const allowed = reacts.map((e) => typeof e === 'string' ? e : e.id);
+
+		/**
+		 * Janky way to make sure the reacts are done in the correct order while
+		 * still being async allowing the code to move on
+		 */
+		let reactCount = 0;
+
+		const reactNext = async () => {
+			reactCount++;
+			
+			while (reactCount < reacts.length) {
+				try {
+					await discordMessage.react(reacts[reactCount]);
+				} catch (e) { return; }
+				
+				reactCount++;
+			}
+		}
+
+		discordMessage.react(reacts[reactCount]).then(reactNext);
+
+		const reactUsed = (await discordMessage.awaitReactions(
+			(e: MessageReaction, u: User) => allowed.includes(e.emoji.id || e.emoji.name) && u.id === this.message.author.id,
+			{max: 1, time: 30000}
+		)).first();
+
+		if (deleteMessage) {
+			discordMessage.delete();
+		}
+
+		if (!reactUsed) {
+			return;
+		}
+		
+		for (let i in reacts) {
+			if ((typeof reacts[i] === 'string' && reacts[i] === reactUsed.emoji.name) || ((reacts[i] as Emoji).id === reactUsed.emoji.id)) {
+				return values[i];
+			}
+		}
+	}
+
+	protected async sendMessage(message: string|RichEmbed): Promise<Message> {
+		return (await this.message.channel.send(message)) as Message;
 	}
 }
