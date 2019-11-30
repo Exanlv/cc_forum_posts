@@ -1,51 +1,51 @@
-import { readFileSync, writeFileSync, existsSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 export class ServerConfig {
-    private filePath: string;
 
-    private defaultValues = {
-        'rankRoles': {},
-        'rankLinkingEnabled': false
-    };
-
-    /**
+	/**
      * Discord role ID's of each minecraft rank
      */
-    public rankRoles: {[ccId: string]: string};
+	public rankRoles: {[ccId: string]: string};
 
-    /**
+	/**
      * Whether a server has rankLinkingEnabled
      */
-    public rankLinkingEnabled: boolean;
+	public rankLinkingEnabled: boolean;
+	private filePath: string;
 
-    constructor(path: string, serverId: string) {
-        this.filePath = `${path}/${serverId}`;
+	private defaultValues: {[key: string]: any} = {
+		rankRoles: {},
+		rankLinkingEnabled: false,
+	};
 
-        this.loadData(this.filePath);
-    }
+	constructor(path: string, serverId: string) {
+		this.filePath = `${path}/${serverId}`;
 
-    private loadData(filePath: string): void {
-        const data = existsSync(filePath) ? JSON.parse(String(readFileSync(filePath))) : this.defaultValues;
+		this.loadData(this.filePath);
+	}
 
-        for (let i in this.defaultValues) {
-            if (!data[i]) {
-                data[i] = this.defaultValues[i];
-            }
-        }
+	public async saveData(filePath: string = this.filePath): Promise<void> {
+		const data = {};
 
-        for (let i in data) {
-            if (this[i] === undefined) {
-                this[i] = data[i];
-            }
-        }
-    }
+		data['rankRoles'] = this.rankRoles;
+		data['rankLinkingEnabled'] = this.rankLinkingEnabled;
 
-    public async saveData(filePath: string = this.filePath): Promise<void> {
-        const data = {};
+		writeFileSync(filePath, JSON.stringify(data));
+	}
 
-        data['rankRoles'] = this.rankRoles;
-        data['rankLinkingEnabled'] = this.rankLinkingEnabled;
+	private loadData(filePath: string): void {
+		const data = existsSync(filePath) ? JSON.parse(String(readFileSync(filePath))) : this.defaultValues;
 
-        writeFileSync(filePath, JSON.stringify(data));
-    }
+		for (const i in this.defaultValues) {
+			if (!data[i]) {
+				data[i] = this.defaultValues[i];
+			}
+		}
+
+		for (const i in data) {
+			if (this[i] === undefined) {
+				this[i] = data[i];
+			}
+		}
+	}
 }

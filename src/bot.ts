@@ -1,9 +1,11 @@
-import { Client, Message, Guild } from 'discord.js';
+import { TimingService } from '@exan/timing-service';
+import { Client, Guild, GuildMember, Message, Role } from 'discord.js';
 import { readdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { CommandConfig } from './blueprints/CommandConfig';
 import { commandConfig } from './commands/config';
 import { MissingPermissionCommand } from './commands/MissingPermissionCommand';
 import { RequiresLinkedUserCommand } from './commands/RequiresLinkedUserCommand';
+import { RequiresServerCommand } from './commands/RequiresServerCommand';
 import { UnknownCommand } from './commands/UnknownCommand';
 import { DirectMessage } from './Forum/blueprints/DirectMessage';
 import { ForumCommand } from './Forum/blueprints/ForumCommand';
@@ -11,10 +13,8 @@ import { ForumCommandConfig } from './Forum/commands/config';
 import { CubecraftForum } from './Forum/CubecraftForum';
 import { getPermissionLevel, hasPermission } from './helper';
 import { ServerConfig } from './ServerConfig';
-import { RequiresServerCommand } from './commands/RequiresServerCommand';
-import { TimingService } from '@exan/timing-service';
 
-export class Bot extends TimingService{
+export class Bot extends TimingService {
 	public static prefix: string = '--';
 	public client: Client;
 
@@ -60,7 +60,7 @@ export class Bot extends TimingService{
 		});
 
 		this.client.on('ready', () => {
-			this.client.guilds.array().forEach(guild => this.handleNewGuild(guild));
+			this.client.guilds.array().forEach((guild: Guild) => this.handleNewGuild(guild));
 
 			console.log('Discord Bot started!');
 		});
@@ -76,6 +76,42 @@ export class Bot extends TimingService{
 	public removeVerifiedUser(discordId: string): void {
 		delete this.verifiedUsers[discordId];
 		unlinkSync(`${__dirname}/../data/linked-users/${discordId}`);
+	}
+
+	public linkMinecraftRoles(): void {
+		for (const i in this.serverConfigs) {
+			if (this.serverConfigs[i].rankLinkingEnabled) {
+				const guild = this.client.guilds.find((g: Guild) => g.id === i);
+
+				if (!guild) {
+					continue;
+				}
+
+				const roles = {};
+
+				for (const j in this.serverConfigs[i].rankRoles) {
+					roles[j] = guild.roles.find((r: Role) => r.id === this.serverConfigs[i].rankRoles[j]);
+				}
+
+				guild.members.tap(async (member: GuildMember) => {
+					if (this.verifiedUsers[member.id]) {
+						const user = await this.cubecraftForum.getUserInfo(this.verifiedUsers[member.id]);
+
+						for (const j in roles) {
+							if (user.mcRanks.includes(j)) {
+								if (!member.roles.find((r: Role) => r.id === roles[j].id)) {
+									member.addRole(roles[j]);
+								}
+							} else {
+								if (member.roles.find((r: Role) => r.id === roles[j].id)) {
+									member.removeRole(roles[j]);
+								}
+							}
+						}
+					}
+				});
+			}
+		}
 	}
 
 	private registerMessageHandler(): void {
@@ -141,14 +177,12 @@ export class Bot extends TimingService{
 			commandClass = RequiresLinkedUserCommand;
 		}
 
-		
-
 		const commandInstance = new commandClass(
 			message,
 			this,
 			getPermissionLevel(message.member || message.author, this),
 			command,
-			message.guild ? this.serverConfigs[message.guild.id] : null
+			message.guild ? this.serverConfigs[message.guild.id] : null,
 		);
 
 		commandInstance.run().catch(async (e: any) => {
@@ -173,7 +207,7 @@ export class Bot extends TimingService{
 		});
 	}
 
-	private handleNewGuild(guild: Guild) {
+	private handleNewGuild(guild: Guild): void {
 		if (!this.serverConfigs[guild.id]) {
 			this.serverConfigs[guild.id] = new ServerConfig(`${__dirname}/../data/server-configs`, guild.id);
 		}
@@ -189,41 +223,5 @@ export class Bot extends TimingService{
 		}
 
 		return usedCommand;
-	}
-
-	public linkMinecraftRoles(): void {
-		for (let i in this.serverConfigs) {
-			if (this.serverConfigs[i].rankLinkingEnabled) {
-				let guild = this.client.guilds.find(g => g.id === i);
-
-				if (!guild) {
-					continue;
-				}
-
-				const roles = {};
-
-				for (let j in this.serverConfigs[i].rankRoles) {
-					roles[j] = guild.roles.find(g => g.id === this.serverConfigs[i].rankRoles[j]);
-				}
-
-				guild.members.tap(async (member) => {
-					if (this.verifiedUsers[member.id]) {
-						const user = await this.cubecraftForum.getUserInfo(this.verifiedUsers[member.id]);
-	
-						for (let j in roles) {
-							if (user.mcRanks.includes(j)) {
-								if (!member.roles.find(r => r.id === roles[j].id)) {
-									member.addRole(roles[j]);
-								}
-							} else {
-								if (member.roles.find(r => r.id === roles[j].id)) {
-									member.removeRole(roles[j]);
-								}
-							}
-						}
-					}
-				});
-			}
-		}
 	}
 }

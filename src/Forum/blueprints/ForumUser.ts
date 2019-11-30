@@ -16,9 +16,9 @@ export class ForumUser {
 	public status?: string;
 	public additionalUserInfo?: AdditionalUserInfo;
 
-	private imgur?: any;
-
 	public mcRanks: string[];
+
+	private imgur?: any;
 
 	private mcUuid?: string;
 
@@ -39,8 +39,8 @@ export class ForumUser {
 		 */
 		this.private = await page.evaluate(() => {
 			return document.getElementsByClassName('errorOverlay').length > 0;
-		})
-		
+		});
+
 		if (this.private) {
 			this.url = await page.evaluate(() => {
 				return window.location.href;
@@ -78,8 +78,8 @@ export class ForumUser {
 
 					return mcPlayerProfile.innerHTML.trim().match(/user=(.*)\" height/)[1];
 				})(),
-				mcRanks: (() => {
-					return Array.from(document.getElementsByClassName('group-badge')).map(el => el.textContent.toLowerCase());
+				mcRanks: ((): string[] => {
+					return Array.from(document.getElementsByClassName('group-badge')).map((el: HTMLElement) => el.textContent.toLowerCase());
 				})(),
 				status: ((): string => {
 					const statusElement = document.getElementById('UserStatus');

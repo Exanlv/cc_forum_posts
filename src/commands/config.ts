@@ -1,12 +1,12 @@
 import { CommandConfig } from '../blueprints/CommandConfig';
 import { PermissionLevel } from '../enums/PermissionLevel';
+import { EnableLinkRanksCommand } from './admin/link-ranks/EnableLinkRanksCommand';
+import { SyncRolesCommand } from './dev/SyncRolesCommand';
 import { MyAccountCommand } from './linked-user/MyAccountCommand';
 import { SearchUserCommand } from './linked-user/SearchUserCommand';
 import { HelpCommand } from './public/HelpCommand';
 import { LinkCommand } from './public/LinkCommand';
 import { UnlinkCommand } from './public/UnlinkCommand';
-import { EnableLinkRanksCommand } from './admin/link-ranks/EnableLinkRanksCommand';
-import { SyncRolesCommand } from './dev/SyncRolesCommand';
 
 export const commandConfig: CommandConfig[] = [
 	{
@@ -44,13 +44,13 @@ export const commandConfig: CommandConfig[] = [
 				key: 'true',
 				requiresServer: true,
 				permission: PermissionLevel.public,
-				command: EnableLinkRanksCommand
-			}
-		]
+				command: EnableLinkRanksCommand,
+			},
+		],
 	},
 	{
 		key: 'sync-roles',
 		permission: PermissionLevel.dev,
-		command: SyncRolesCommand
-	}
+		command: SyncRolesCommand,
+	},
 ];

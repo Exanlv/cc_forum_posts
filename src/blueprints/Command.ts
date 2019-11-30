@@ -1,4 +1,4 @@
-import { Message, RichEmbed, Emoji, MessageReaction, User, Collection } from 'discord.js';
+import { Collection, Emoji, Message, MessageReaction, RichEmbed, User } from 'discord.js';
 import { Bot } from '../bot';
 import { PermissionLevel } from '../enums/PermissionLevel';
 
@@ -22,9 +22,9 @@ export abstract class Command {
 	/**
 	 * The command as used by the user, prefix removed
 	 */
-	public command: Array<string>;
+	public command: string[];
 
-	public constructor(message: Message, bot: Bot, userPermission: PermissionLevel, command: Array<string>) {
+	public constructor(message: Message, bot: Bot, userPermission: PermissionLevel, command: string[]) {
 		this.message = message;
 		this.bot = bot;
 		this.userPermission = userPermission;
@@ -37,14 +37,14 @@ export abstract class Command {
 	 * @param reacts The reacts that are allowed / have a value
 	 * @param values The return value for each reaction
 	 */
-	protected async reactInput(message: string|RichEmbed, reacts: Array<string|Emoji>, values: Array<any>, deleteMessage = true): Promise<any> {
+	protected async reactInput(message: string|RichEmbed, reacts: Array<string|Emoji>, values: any[], deleteMessage: boolean = true): Promise<any> {
 		const discordMessage = await this.sendMessage(message);
 
 		if (!(reacts.length && reacts.length === values.length)) {
 			return;
 		}
 
-		const allowed = reacts.map((e) => typeof e === 'string' ? e : e.id);
+		const allowed = reacts.map((e: string|Emoji) => typeof e === 'string' ? e : e.id);
 
 		/**
 		 * Janky way to make sure the reacts are done in the correct order while
@@ -52,23 +52,23 @@ export abstract class Command {
 		 */
 		let reactCount = 0;
 
-		const reactNext = async () => {
+		const reactNext = async (): Promise<void> => {
 			reactCount++;
-			
+
 			while (reactCount < reacts.length) {
 				try {
 					await discordMessage.react(reacts[reactCount]);
 				} catch (e) { return; }
-				
+
 				reactCount++;
 			}
-		}
+		};
 
 		discordMessage.react(reacts[reactCount]).then(reactNext);
 
 		const reactUsed = (await discordMessage.awaitReactions(
 			(e: MessageReaction, u: User) => allowed.includes(e.emoji.id || e.emoji.name) && u.id === this.message.author.id,
-			{max: 1, time: 30000}
+			{max: 1, time: 30000},
 		)).first();
 
 		if (deleteMessage) {
@@ -78,8 +78,8 @@ export abstract class Command {
 		if (!reactUsed) {
 			return;
 		}
-		
-		for (let i in reacts) {
+
+		for (const i in reacts) {
 			if ((typeof reacts[i] === 'string' && reacts[i] === reactUsed.emoji.name) || ((reacts[i] as Emoji).id === reactUsed.emoji.id)) {
 				return values[i];
 			}

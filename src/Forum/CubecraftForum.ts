@@ -3,8 +3,8 @@ import { DirectMessage } from './blueprints/DirectMessage';
 import { ForumUser } from './blueprints/ForumUser';
 import { NewForumPost } from './blueprints/NewForumPost';
 
-import * as fetch from 'node-fetch';
 import { TimingService } from '@exan/timing-service';
+import * as fetch from 'node-fetch';
 
 export class CubecraftForum extends TimingService {
 	public browser: any;

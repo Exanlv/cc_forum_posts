@@ -1,3 +1,4 @@
+import { Guild, Role } from 'discord.js';
 import { Command } from '../../blueprints/Command';
 import { IRunnableCommand } from '../../interfaces/IRunnableCommand';
 
@@ -10,7 +11,7 @@ export class UnlinkCommand extends Command implements IRunnableCommand {
 
 		this.bot.removeVerifiedUser(this.message.author.id);
 
-		this.bot.client.guilds.tap(async (guild) => {
+		this.bot.client.guilds.tap(async (guild: Guild) => {
 			const guildMember = await guild.fetchMember(this.message.author.id);
 
 			if (!guildMember) {
@@ -23,8 +24,8 @@ export class UnlinkCommand extends Command implements IRunnableCommand {
 				return;
 			}
 
-			for (let i in serverConfig.rankRoles) {
-				let role = guildMember.roles.find(r => r.id === serverConfig.rankRoles[i]);
+			for (const i in serverConfig.rankRoles) {
+				const role = guildMember.roles.find((r: Role) => r.id === serverConfig.rankRoles[i]);
 
 				if (role) {
 					guildMember.removeRole(role);

@@ -1,6 +1,6 @@
+import { RichEmbed } from 'discord.js';
 import { IRunnableCommand } from '../../interfaces/IRunnableCommand';
 import { AShowUserCommand } from './AShowUserCommand';
-import { RichEmbed } from 'discord.js';
 
 export class SearchUserCommand extends AShowUserCommand implements IRunnableCommand {
 	public async run(): Promise<void> {
@@ -23,26 +23,26 @@ export class SearchUserCommand extends AShowUserCommand implements IRunnableComm
 			if (possibleUsers.length > 10) {
 				possibleUsers = possibleUsers.slice(0, 10);
 			}
-	
+
 			const message = new RichEmbed();
 			message.setColor(process.env.EMBED_COLOR);
 			message.setTitle(`Search results for \`${searchQ}\``);
-	
+
 			if (!possibleUsers.length) {
 				message.setDescription('No results');
 				this.sendMessage(message);
 				return;
 			}
-			
+
 			const reacts = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣', '🔟'].slice(0, possibleUsers.length);
 
 			let description = '';
-			for (let i in possibleUsers) {
+			for (const i in possibleUsers) {
 				description += `**${(Number(i) + 1)}:** ${possibleUsers[i]}\n`;
 			}
-	
+
 			message.setDescription(description);
-	
+
 			pickedUser = await this.reactInput(message, reacts, possibleUsers);
 		}
 
